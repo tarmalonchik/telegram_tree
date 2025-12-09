@@ -1,4 +1,4 @@
-module github.com/vkidmode/telegram_tree
+module github.com/tarmalonchik/telegram_tree
 
 go 1.19
 
