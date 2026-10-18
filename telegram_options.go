@@ -2,6 +2,15 @@ package telegram_tree
 
 type TelegramOpt func(v *telegram)
 
+// Style is the color of an inline button.
+type Style string
+
+const (
+	StyleDanger  Style = "danger"  // red
+	StyleSuccess Style = "success" // green
+	StylePrimary Style = "primary" // blue
+)
+
 type Telegram interface {
 	GetMessage() string
 	GetTabTxt() string
@@ -13,6 +22,9 @@ type Telegram interface {
 	GetResendMsg() bool
 	setDefaultMessage(string)
 	GetColumns() int
+	GetStyle() Style
+	GetCopyText() *string
+	GetDisabled() bool
 }
 
 type telegram struct {
@@ -25,6 +37,9 @@ type telegram struct {
 	switchInlineQueryCurrentChat *string
 	link                         *string
 	columns                      int
+	style                        Style
+	copyText                     *string
+	disabled                     bool
 }
 
 func (t *telegram) GetMessage() string     { return t.message }
@@ -40,6 +55,9 @@ func (t *telegram) GetSwitchInlineQueryCurrentChat() *string {
 func (t *telegram) GetLink() *string {
 	return t.link
 }
+func (t *telegram) GetStyle() Style             { return t.style }
+func (t *telegram) GetCopyText() *string        { return t.copyText }
+func (t *telegram) GetDisabled() bool           { return t.disabled }
 func (t *telegram) setDefaultMessage(in string) { t.message = in }
 
 func NewTelegram(options ...TelegramOpt) Telegram {
@@ -103,5 +121,25 @@ func EnablePreview() TelegramOpt {
 func ResendMsg() TelegramOpt {
 	return func(v *telegram) {
 		v.resendMsg = true
+	}
+}
+
+func WithStyle(style Style) TelegramOpt {
+	return func(v *telegram) {
+		v.style = style
+	}
+}
+
+// WithCopyText makes the button copy the text to the clipboard instead of sending a callback.
+func WithCopyText(text string) TelegramOpt {
+	return func(v *telegram) {
+		v.copyText = &text
+	}
+}
+
+// Disabled shows the button greyed out; pressing it does nothing.
+func Disabled() TelegramOpt {
+	return func(v *telegram) {
+		v.disabled = true
 	}
 }
